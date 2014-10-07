@@ -5,6 +5,7 @@ int photocellReading; // the analog reading from the analog resistor divider
 int nReadStart;
 int barrierestate=3;
 unsigned long  nCloseBarriereTime = 0;
+int nLoopCount = 4;
 void setup()
 {
     monServo.attach(2, 1000, 2000);
@@ -17,17 +18,22 @@ void setup()
 
 void ouvrirBarriere(){
   if (barrierestate != 0){
+    if (!monServo.attached()) monServo.attach(2, 1000, 2000);
     Serial.println("Ouvrir  ");
     barrierestate = 0;
+    nLoopCount = 0;
     monServo.write(10);
   }
 }
 
 void FermerBarriere(){
+  
   if (barrierestate != 1){
+    if (!monServo.attached()) monServo.attach(2, 1000, 2000);
     Serial.println("Fermer  ");
     barrierestate = 1;
-    monServo.write(180);
+    nLoopCount = 0;
+    monServo.write(160);
   }
 }
  
@@ -57,7 +63,15 @@ void loop()
        && nCloseBarriereTime != 0){
          FermerBarriere();
        }
-  
+       
+   
+   if (nLoopCount > 3 && monServo.attached() ){
+        Serial.println("detach" );
+        monServo.detach();   
+    }
+    nLoopCount++;
+    
+  /*
    Serial.print(abs (photocellReading - nReadStart) );
       Serial.print(" " );
       Serial.print(nCloseBarriereTime );
@@ -65,8 +79,7 @@ void loop()
       Serial.print(barrierestate );
       Serial.print(" " );
       Serial.println(" " );
- 
-   
+ */
    
   
   delay(100);
